@@ -1,84 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Employee Management</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="app.component.css">
-</head>
-<body>
-  <div class="container hr-container">
-    <header>
-      <h1><i class="fas fa-users"></i> Employee Management</h1>
-      <button class="btn btn-add" onclick="openAddPopup()">
-        <i class="fas fa-plus"></i> Add Employee
-      </button>
-    </header>
+<div class="collapsing">
+  <h1>Employee Management</h1>
 
-    <div class="search-section">
-      <div class="search-box">
-        <input type="number" id="searchId" class="form-control search-input" placeholder="Enter employee ID">
-        <button class="btn btn-search" onclick="searchEmployeeById()">
-          <i class="fas fa-search"></i> Search
-        </button>
-      </div>
-      <div id="searchResult" class="search-result">
-       
-      </div>
+  <button class="btn btn-dark p-2" (click)="openAddPopup()">Add Employee</button>
+
+  <table class="table table-bordered table-bordered">
+    <thead class="table-hover">
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Department</th>
+        <th style="width: 160px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let employee of employees" class="table-row">
+        <td>{{ employee.id }}</td>
+        <td>{{ employee.name }}</td>
+        <td>{{ employee.email }}</td>
+        <td>{{ employee.department }}</td>
+        <td>
+          <button class="btn btn-group" (click)="openEditPopup(employee)">Edit</button>
+          <button class="btn btn-success" (click)="deleteEmployee(employee.id)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="showPopup" class="popup">
+    <div class="popup-content">
+      <h2>{{ isEditing ? 'Edit Employee' : 'Add Employee' }}</h2>
+      <form [formGroup]="employeeForm" (ngSubmit)="isEditing ? updateEmployee() : addEmployee()">
+        <div class="form-group mb-3">
+          <label for="name">Name</label>
+          <input id="name" formControlName="name" type="text" class="form-control" required />
+        </div>
+        <div class="form-group mb-3">
+          <label for="email">Email</label>
+          <input id="email" formControlName="email" type="email" class="form-control" required />
+        </div>
+        <div class="form-group mb-3">
+          <label for="department">Department</label>
+          <input id="department" formControlName="department" type="text" class="form-control" required />
+        </div>
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-success">{{ isEditing ? 'Update' : 'Add' }} Employee</button>
+          <button type="button" class="btn btn-secondary" (click)="closePopup()">Cancel</button>
+        </div>
+      </form>
     </div>
-
-    <div class="employee-table-container">
-      <table class="employee-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Department</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="employeeTableBody">
-
-        </tbody>
-      </table>
-    </div>
-
-  
-    <div id="employeeModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closePopup()">&times;</span>
-        <h2 id="modalTitle">Add Employee</h2>
-        <form id="employeeForm">
-          <div class="form-group">
-            <label for="name">Name</label>
-            <input id="name" type="text" class="form-control" required>
-          </div>
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input id="email" type="email" class="form-control" required>
-          </div>
-          <div class="form-group">
-            <label for="department">Department</label>
-            <input id="department" type="text" class="form-control" required>
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-submit">Save</button>
-            <button type="button" class="btn btn-cancel" onclick="closePopup()">Cancel</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-  
-    <div id="loadingSpinner" class="spinner-container">
-      <div class="spinner"></div>
-    </div>
-
-   
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    <script src="employee-management.js"></script>
   </div>
-</body>
-</html>
+
+  <div class="mt-4">
+    <label for="searchId" class="form-label">Search Employee by ID:</label>
+    <div class="input-group mb-3">
+      <input type="number" [(ngModel)]="searchId" id="searchId" class="form-control" placeholder="Enter employee ID" />
+      <button class="btn btn-outline-primary" (click)="searchEmployeeById()">Search</button>
+    </div>
+  </div>
+
+  <div *ngIf="searchedEmployee" class="search-result">
+    <h4>Search Result:</h4>
+    <p><strong>ID:</strong> {{ searchedEmployee.id }}</p>
+    <p><strong>Name:</strong> {{ searchedEmployee.name }}</p>
+    <p><strong>Email:</strong> {{ searchedEmployee.email }}</p>
+    <p><strong>Department:</strong> {{ searchedEmployee.department }}</p>
+  </div>
+
+  <div *ngIf="searchError" class="alert alert-danger">
+    {{ searchError }}
+  </div>
+
+  <div *ngIf="loading" class="spinner"></div>
+</div>
